@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, GPT2LMHeadModel
 import torch
 import os
 from dotenv import load_dotenv
@@ -13,7 +13,7 @@ model_path = "./skt-kogpt2-base-v2-korea-subway-station-model"  # Change to your
 
 # Load tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path)
+model = GPT2LMHeadModel.from_pretrained(model_path)
 
 # Important: set pad_token to eos_token (same as during training)
 tokenizer.pad_token = tokenizer.eos_token
@@ -34,6 +34,7 @@ def generate_response(prompt, max_new_tokens=100):
         output_ids = model.generate(
             input_ids,
             max_new_tokens=max_new_tokens,
+            repetition_penalty=2.0,
             pad_token_id=tokenizer.pad_token_id,
             eos_token_id=tokenizer.eos_token_id,
             do_sample=True,         # Enable sampling
@@ -49,7 +50,7 @@ def generate_response(prompt, max_new_tokens=100):
     return output_text.replace(prompt, "").strip()
 
 # 🧪 Example usage
-prompt = "전곡역에 대해 알려줘"
+prompt = "동두천중앙은 어디에 있어?"
 response = generate_response(prompt)
 
 print(f"🧠 Prompt: {prompt}")
